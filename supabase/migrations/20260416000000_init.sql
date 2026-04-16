@@ -1,6 +1,31 @@
--- Serene: initial schema
--- entries table stores a single mood + tags + note + AI response per row
+-- Serene: initial schema.
+-- entries table stores a single mood + tags + note + AI response per row.
 -- Row-Level Security is enabled so users can only read/write their own rows.
+
+-- This migration runs during Postgres initdb — before GoTrue has had a chance
+-- to run its own migrations. The supabase/postgres image pre-creates auth.uid()
+-- owned by `postgres`, so we re-own the auth.* helpers to supabase_auth_admin.
+-- Without this transfer, GoTrue can't `create or replace` them on first boot.
+create schema if not exists auth;
+
+create or replace function auth.uid()
+returns uuid
+language sql
+stable
+set search_path = ''
+as $$
+  select nullif(
+    coalesce(
+      current_setting('request.jwt.claim.sub', true),
+      (nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'sub')
+    ),
+    ''
+  )::uuid;
+$$;
+
+alter function auth.uid()   owner to supabase_auth_admin;
+alter function auth.role()  owner to supabase_auth_admin;
+alter function auth.email() owner to supabase_auth_admin;
 
 create type public.mood_kind as enum (
   'happy',
@@ -12,9 +37,8 @@ create type public.mood_kind as enum (
   'angry'
 );
 
--- user_id matches auth.users.id. We don't add a FK constraint here so this
--- migration can be run during `docker-compose up` before GoTrue has finished
--- creating the auth.users table. RLS (below) is the real safety layer —
+-- user_id matches auth.users.id. No FK constraint here because GoTrue hasn't
+-- created auth.users yet at initdb time. RLS (below) is the real safety layer —
 -- auth.uid() = user_id ensures users can only touch their own rows.
 create table public.entries (
   id          uuid primary key default gen_random_uuid(),

@@ -1,7 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const PUBLIC_PATHS = ["/", "/login", "/signup", "/auth"];
 const PROTECTED_PREFIXES = ["/dashboard", "/journal", "/insights"];
 
 export async function updateSession(request: NextRequest) {
@@ -49,9 +48,6 @@ export async function updateSession(request: NextRequest) {
     url.search = "";
     return NextResponse.redirect(url);
   }
-
-  // Suppress unused warning; kept for readability of public path list.
-  void PUBLIC_PATHS;
 
   return response;
 }

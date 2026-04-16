@@ -1,13 +1,9 @@
-# Serene — single-command local environment
+# Serene — single-command local environment.
 #
-# Starts Postgres + GoTrue (auth) + PostgREST + Kong (API gateway) + Studio + Next.js.
-# After `docker-compose up`, visit:
-#   http://localhost:3000  — the app
-#   http://localhost:54321 — Supabase API (Kong)
-#   http://localhost:54323 — Supabase Studio
-#
-# Recommended for contributors: use the Supabase CLI instead (`supabase start` +
-# `npm run dev`). See README.
+# `cp .env.example .env && docker compose up --build` brings up Postgres,
+# GoTrue (auth), PostgREST, Kong (API gateway), and the Next.js app on :3000.
+# The Supabase API is exposed on :54321 (matches NEXT_PUBLIC_SUPABASE_URL in
+# .env.example); Postgres is on :54322 for direct psql access if you want it.
 
 name: serene
 
@@ -26,7 +22,8 @@ services:
       JWT_EXP: 3600
     volumes:
       - db-data:/var/lib/postgresql/data
-      - ./supabase/migrations:/docker-entrypoint-initdb.d:ro
+      - ./supabase/migrations:/docker-entrypoint-initdb.d/migrations:ro
+      - ./supabase/roles.sql:/docker-entrypoint-initdb.d/init-scripts/99-roles.sql:ro
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres", "-d", "postgres"]
       interval: 5s
@@ -42,10 +39,10 @@ services:
     environment:
       GOTRUE_API_HOST: 0.0.0.0
       GOTRUE_API_PORT: 9999
-      API_EXTERNAL_URL: http://localhost:54321
+      API_EXTERNAL_URL: ${NEXT_PUBLIC_SUPABASE_URL:-http://localhost:54321}
       GOTRUE_DB_DRIVER: postgres
       GOTRUE_DB_DATABASE_URL: postgres://supabase_auth_admin:postgres@db:5432/postgres?search_path=auth
-      GOTRUE_SITE_URL: http://localhost:3000
+      GOTRUE_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
       GOTRUE_URI_ALLOW_LIST: "http://localhost:3000,http://localhost:3000/auth/callback"
       GOTRUE_JWT_SECRET: super-secret-jwt-token-with-at-least-32-characters-long
       GOTRUE_JWT_EXP: 3600
@@ -85,40 +82,26 @@ services:
     volumes:
       - ./supabase/kong.yml:/home/kong/kong.yml:ro
 
-  studio:
-    image: supabase/studio:20250106-1e1f1c3
-    restart: unless-stopped
-    depends_on: [db, rest]
-    ports:
-      - "54323:3000"
-    environment:
-      STUDIO_PG_META_URL: http://meta:8080
-      POSTGRES_PASSWORD: postgres
-      DEFAULT_ORGANIZATION_NAME: Serene
-      DEFAULT_PROJECT_NAME: serene
-      SUPABASE_URL: http://kong:8000
-      SUPABASE_PUBLIC_URL: http://localhost:54321
-      SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
-      SUPABASE_SERVICE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
-
   web:
     build:
       context: .
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_SUPABASE_URL: http://localhost:54321
+        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
         NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
-        NEXT_PUBLIC_SITE_URL: http://localhost:3000
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL}
     restart: unless-stopped
     depends_on: [kong]
     ports:
       - "3000:3000"
     environment:
-      NEXT_PUBLIC_SUPABASE_URL: http://localhost:54321
+      NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
-      NEXT_PUBLIC_SITE_URL: http://localhost:3000
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL}
+      SUPABASE_URL: http://kong:8000
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       OPENAI_MODEL: ${OPENAI_MODEL:-gpt-5.4-mini}
 
 volumes:
   db-data:
+    name: serene_pgdata
