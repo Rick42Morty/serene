@@ -49,24 +49,25 @@
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
+  /* Serene calm palette — warm off-white background, sage primary, lavender accent */
+  --background: oklch(0.985 0.008 95);
+  --foreground: oklch(0.26 0.015 250);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
+  --card-foreground: oklch(0.26 0.015 250);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  --popover-foreground: oklch(0.26 0.015 250);
+  --primary: oklch(0.58 0.055 145);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.95 0.015 145);
+  --secondary-foreground: oklch(0.3 0.02 145);
+  --muted: oklch(0.96 0.008 95);
+  --muted-foreground: oklch(0.5 0.015 250);
+  --accent: oklch(0.93 0.04 300);
+  --accent-foreground: oklch(0.3 0.05 300);
+  --destructive: oklch(0.577 0.18 27.325);
+  --border: oklch(0.9 0.01 95);
+  --input: oklch(0.92 0.01 95);
+  --ring: oklch(0.7 0.05 145);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
@@ -123,8 +124,38 @@
   }
   body {
     @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
   html {
     @apply font-sans;
+  }
+  /* Prevent iOS auto-zoom on input focus */
+  @media (max-width: 640px) {
+    input,
+    select,
+    textarea {
+      font-size: 16px !important;
+    }
+  }
+}
+
+@layer utilities {
+  .safe-bottom {
+    padding-bottom: calc(env(safe-area-inset-bottom) + 0.5rem);
+  }
+  .bg-calm-gradient {
+    background:
+      radial-gradient(
+        ellipse 80% 50% at 20% 10%,
+        oklch(0.95 0.04 145 / 0.5),
+        transparent 60%
+      ),
+      radial-gradient(
+        ellipse 70% 50% at 85% 90%,
+        oklch(0.93 0.05 300 / 0.45),
+        transparent 55%
+      ),
+      var(--background);
   }
 }

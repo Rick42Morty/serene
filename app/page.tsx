@@ -1,65 +1,117 @@
-import Image from "next/image";
+import Link from "next/link";
+import { Sparkles, Lock, LineChart, Heart } from "lucide-react";
+import { buttonVariants } from "@/components/ui/button";
 
-export default function Home() {
+export default function Landing() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <div className="flex flex-1 flex-col bg-calm-gradient">
+      <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-5 py-5 sm:px-8">
+        <Link href="/" className="flex items-center gap-2">
+          <span
+            aria-hidden
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-lg"
+          >
+            🌿
+          </span>
+          <span className="text-lg font-semibold tracking-tight">Serene</span>
+        </Link>
+        <nav className="flex items-center gap-2 text-sm">
+          <Link
+            href="/login"
+            className="hidden rounded-md px-3 py-2 text-foreground/80 hover:text-foreground sm:inline-block"
+          >
+            Log in
+          </Link>
+          <Link href="/signup" className={buttonVariants({ size: "sm" })}>
+            Get started
+          </Link>
+        </nav>
+      </header>
+
+      <main className="flex flex-1 flex-col">
+        <section className="mx-auto flex w-full max-w-4xl flex-1 flex-col items-center justify-center px-5 py-16 text-center sm:px-8 sm:py-24">
+          <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-border/70 bg-card/70 px-3 py-1 text-xs text-muted-foreground backdrop-blur">
+            <Sparkles className="h-3.5 w-3.5" /> Private by design
+          </span>
+          <h1
+            className="font-semibold tracking-tight text-foreground"
+            style={{ fontSize: "clamp(2.25rem, 5vw + 1rem, 4rem)", lineHeight: 1.05 }}
+          >
+            A calm space for <br className="hidden sm:block" />
+            <span className="text-primary">how you really feel.</span>
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+            Serene is a private mood journal with a gentle AI companion. Log a
+            mood, add a note, and receive a warm one-line reflection — then
+            watch patterns emerge over time.
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+          <div className="mt-8 flex w-full max-w-sm flex-col gap-3 sm:w-auto sm:flex-row">
+            <Link
+              href="/signup"
+              className={buttonVariants({
+                size: "lg",
+                className: "w-full sm:w-auto",
+              })}
+            >
+              Start journaling — it&apos;s free
+            </Link>
+            <Link
+              href="/login"
+              className={buttonVariants({
+                size: "lg",
+                variant: "outline",
+                className: "w-full sm:w-auto",
+              })}
+            >
+              I already have an account
+            </Link>
+          </div>
+        </section>
+
+        <section className="mx-auto grid w-full max-w-5xl gap-4 px-5 pb-20 sm:grid-cols-3 sm:px-8">
+          <Feature
+            icon={<Heart className="h-5 w-5 text-primary" />}
+            title="Empathetic by design"
+            body="Every reflection is a warm one-to-two sentence response — never clinical, never pushy."
+          />
+          <Feature
+            icon={<Lock className="h-5 w-5 text-primary" />}
+            title="Your journal, yours alone"
+            body="Row-level security in Supabase. No one — not even Serene admins — sees your entries."
+          />
+          <Feature
+            icon={<LineChart className="h-5 w-5 text-primary" />}
+            title="Patterns, not pressure"
+            body="A gentle weekly overview so you can notice what lifts you and what weighs you down."
+          />
+        </section>
       </main>
+
+      <footer className="mx-auto w-full max-w-6xl px-5 py-6 text-center text-xs text-muted-foreground sm:px-8">
+        Made with care. Serene is not a substitute for professional support.
+      </footer>
+    </div>
+  );
+}
+
+function Feature({
+  icon,
+  title,
+  body,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  body: string;
+}) {
+  return (
+    <div className="rounded-2xl border border-border/70 bg-card/70 p-5 backdrop-blur">
+      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10">
+        {icon}
+      </div>
+      <h3 className="mt-3 text-sm font-semibold">{title}</h3>
+      <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+        {body}
+      </p>
     </div>
   );
 }
