@@ -10,21 +10,24 @@ import { Label } from "@/components/ui/label";
 import { MoodSelector } from "@/components/mood/mood-selector";
 import { TagChips } from "@/components/mood/tag-chips";
 import { VibeCheckStream } from "@/components/mood/vibe-check-stream";
-import { createEntry, saveAiResponse } from "@/app/(app)/journal/actions";
+import { createEntry } from "@/app/(app)/journal/actions";
 import type { Mood } from "@/lib/supabase/types";
 
-const MIN_NOTE = 50;
+const VIBE_CHECK_MIN_NOTE = 50;
+
+type Saved = { id: string; mood: Mood; tags: string[]; note: string };
 
 export function EntryComposer() {
   const router = useRouter();
   const [mood, setMood] = useState<Mood | null>(null);
   const [tags, setTags] = useState<string[]>([]);
   const [note, setNote] = useState("");
-  const [entryId, setEntryId] = useState<string | null>(null);
-  const [savedNote, setSavedNote] = useState<string | null>(null);
+  const [saved, setSaved] = useState<Saved | null>(null);
   const [pending, startTransition] = useTransition();
 
-  const canSave = mood !== null && note.trim().length >= MIN_NOTE;
+  const locked = saved !== null;
+  const canSave = mood !== null && !locked;
+  const willTriggerVibeCheck = note.trim().length >= VIBE_CHECK_MIN_NOTE;
 
   function handleSave() {
     if (!mood || !canSave) return;
@@ -34,20 +37,21 @@ export function EntryComposer() {
         toast.error(res.error ?? "Couldn't save your entry.");
         return;
       }
-      setEntryId(res.id);
-      setSavedNote(note);
+      setSaved({ id: res.id, mood, tags, note });
       toast.success("Saved to your journal.");
     });
   }
 
-  async function handleAiFinish(text: string) {
-    if (!entryId) return;
-    await saveAiResponse(entryId, text);
+  function reset() {
+    setMood(null);
+    setTags([]);
+    setNote("");
+    setSaved(null);
   }
 
   return (
-    <div className="space-y-8 pb-32 md:pb-8">
-      <section>
+    <div className={`space-y-8 ${locked ? "md:pb-8" : "pb-32 md:pb-8"}`}>
+      <section className={locked ? "pointer-events-none opacity-70" : undefined}>
         <h2 className="text-sm font-semibold text-foreground">
           How are you feeling?
         </h2>
@@ -58,7 +62,7 @@ export function EntryComposer() {
         <MoodSelector value={mood} onChange={setMood} />
       </section>
 
-      <section>
+      <section className={locked ? "pointer-events-none opacity-70" : undefined}>
         <h2 className="text-sm font-semibold text-foreground">
           What&apos;s going on? <span className="font-normal text-muted-foreground">(optional)</span>
         </h2>
@@ -71,17 +75,18 @@ export function EntryComposer() {
       <section>
         <div className="flex items-baseline justify-between">
           <Label htmlFor="note" className="text-sm font-semibold">
-            A note to yourself
+            A note to yourself{" "}
+            <span className="font-normal text-muted-foreground">(optional)</span>
           </Label>
-          <span
-            className={`text-xs ${
-              note.trim().length >= MIN_NOTE
-                ? "text-primary"
-                : "text-muted-foreground"
-            }`}
-          >
-            {note.trim().length} / {MIN_NOTE}+ chars
-          </span>
+          {!locked && (
+            <span
+              className={`text-xs ${
+                willTriggerVibeCheck ? "text-primary" : "text-muted-foreground"
+              }`}
+            >
+              {note.trim().length} / {VIBE_CHECK_MIN_NOTE}+ chars
+            </span>
+          )}
         </div>
         <Textarea
           id="note"
@@ -90,20 +95,26 @@ export function EntryComposer() {
           rows={6}
           placeholder="What's on your mind? A few sentences about today, a worry, a small win — whatever feels true."
           className="mt-2 min-h-[140px] text-base leading-relaxed"
-          disabled={entryId !== null}
+          disabled={locked}
         />
+        {!locked && (
+          <p className="mt-2 text-xs text-muted-foreground">
+            Write at least {VIBE_CHECK_MIN_NOTE} characters to get an AI vibe
+            check on your entry. Shorter notes will just be saved.
+          </p>
+        )}
       </section>
 
-      {entryId && savedNote && mood && (
+      {saved && saved.note.trim().length >= VIBE_CHECK_MIN_NOTE && (
         <VibeCheckStream
-          mood={mood}
-          tags={tags}
-          note={savedNote}
-          onFinish={handleAiFinish}
+          mood={saved.mood}
+          tags={saved.tags}
+          note={saved.note}
+          entryId={saved.id}
         />
       )}
 
-      {entryId ? (
+      {saved ? (
         <div className="flex flex-col gap-2 sm:flex-row">
           <Button
             variant="outline"
@@ -112,21 +123,11 @@ export function EntryComposer() {
           >
             Back to journal
           </Button>
-          <Button
-            className="sm:flex-1"
-            onClick={() => {
-              setMood(null);
-              setTags([]);
-              setNote("");
-              setEntryId(null);
-              setSavedNote(null);
-            }}
-          >
+          <Button className="sm:flex-1" onClick={reset}>
             Write another
           </Button>
         </div>
       ) : (
-        // Sticky save bar on mobile, inline on desktop
         <>
           <div className="hidden md:block">
             <Button
@@ -136,11 +137,11 @@ export function EntryComposer() {
               className="w-full sm:w-auto"
             >
               {pending && <Loader2 className="h-4 w-4 animate-spin" />}
-              {pending ? "Saving…" : "Save & reflect"}
+              {pending ? "Saving…" : willTriggerVibeCheck ? "Save & reflect" : "Save entry"}
             </Button>
             {!canSave && (
               <p className="mt-2 text-xs text-muted-foreground">
-                Pick a mood and write at least {MIN_NOTE} characters to continue.
+                Pick a mood to continue.
               </p>
             )}
           </div>
@@ -152,13 +153,11 @@ export function EntryComposer() {
               size="lg"
             >
               {pending && <Loader2 className="h-4 w-4 animate-spin" />}
-              {pending ? "Saving…" : "Save & reflect"}
+              {pending ? "Saving…" : willTriggerVibeCheck ? "Save & reflect" : "Save entry"}
             </Button>
             {!canSave && (
               <p className="mt-1.5 text-center text-[11px] text-muted-foreground">
-                {!mood
-                  ? "Pick a mood"
-                  : `${MIN_NOTE - note.trim().length} more chars`}
+                Pick a mood
               </p>
             )}
           </div>

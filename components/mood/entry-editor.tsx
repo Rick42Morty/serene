@@ -186,7 +186,7 @@ export function EntryEditor({ entry }: { entry: Entry }) {
         <Button
           className="flex-1 md:flex-initial"
           onClick={save}
-          disabled={pending || note.trim().length < 1}
+          disabled={pending}
         >
           {pending && <Loader2 className="h-4 w-4 animate-spin" />}
           Save changes

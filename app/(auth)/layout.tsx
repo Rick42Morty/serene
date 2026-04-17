@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SereneLogo } from "@/components/serene-logo";
 
 export default function AuthLayout({
   children,
@@ -9,9 +10,7 @@ export default function AuthLayout({
     <div className="flex min-h-dvh flex-col bg-calm-gradient">
       <header className="mx-auto flex w-full max-w-5xl items-center px-5 py-5 sm:px-8">
         <Link href="/" className="flex items-center gap-2">
-          <span aria-hidden className="text-lg">
-            🌿
-          </span>
+          <SereneLogo size={30} />
           <span className="text-lg font-semibold tracking-tight">Serene</span>
         </Link>
       </header>

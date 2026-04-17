@@ -19,7 +19,7 @@ const MOOD_VALUES = [
 const entrySchema = z.object({
   mood: z.enum(MOOD_VALUES),
   tags: z.array(z.string().min(1).max(64)).max(12),
-  note: z.string().min(1).max(4000),
+  note: z.string().max(4000),
 });
 
 export type EntryInput = z.infer<typeof entrySchema>;
@@ -50,24 +50,6 @@ export async function createEntry(input: EntryInput) {
   revalidatePath("/dashboard");
   revalidatePath("/insights");
   return { id: data.id, error: null as string | null };
-}
-
-export async function saveAiResponse(id: string, aiResponse: string) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: "Not signed in." };
-
-  const { error } = await supabase
-    .from("entries")
-    .update({ ai_response: aiResponse })
-    .eq("id", id)
-    .eq("user_id", user.id);
-
-  if (error) return { error: error.message };
-  revalidatePath(`/journal/${id}`);
-  return { error: null };
 }
 
 export async function updateEntry(id: string, input: EntryInput) {

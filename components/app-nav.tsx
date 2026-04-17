@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Home, PenLine, LineChart, LogOut, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { SereneLogo } from "@/components/serene-logo";
 import {
   Sheet,
   SheetContent,
@@ -28,9 +29,7 @@ export function AppNav({ email }: { email: string | null }) {
     <header className="sticky top-0 z-30 border-b border-border/60 bg-background/80 backdrop-blur">
       <div className="mx-auto flex h-14 max-w-5xl items-center justify-between gap-3 px-4 sm:px-6">
         <Link href="/dashboard" className="flex items-center gap-2">
-          <span aria-hidden className="text-lg">
-            🌿
-          </span>
+          <SereneLogo size={26} />
           <span className="text-base font-semibold tracking-tight">Serene</span>
         </Link>
 

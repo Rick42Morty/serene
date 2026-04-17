@@ -12,6 +12,7 @@ const requestSchema = z.object({
   mood: z.string().min(1).max(32),
   tags: z.array(z.string().min(1).max(64)).max(12),
   note: z.string().min(1).max(4000),
+  entryId: z.string().uuid().optional(),
 });
 
 export async function POST(request: Request) {
@@ -27,7 +28,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "invalid_input" }, { status: 400 });
   }
 
-  const { mood, tags, note } = parsed.data;
+  const { mood, tags, note, entryId } = parsed.data;
   const safety = runSafetyChecks(note);
 
   if (safety.kind === "empty" || safety.kind === "gibberish") {
@@ -53,13 +54,25 @@ export async function POST(request: Request) {
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
       try {
+        let acc = "";
         for await (const delta of textStream) {
+          acc += delta;
           controller.enqueue(encoder.encode(delta));
         }
         if (safety.kind === "sensitive") {
+          acc += CRISIS_DISCLAIMER;
           controller.enqueue(encoder.encode(CRISIS_DISCLAIMER));
         }
         controller.close();
+
+        if (entryId && acc.trim().length > 0) {
+          const { error } = await supabase
+            .from("entries")
+            .update({ ai_response: acc.trim() })
+            .eq("id", entryId)
+            .eq("user_id", user.id);
+          if (error) console.error("[vibe-check] persist error", error);
+        }
       } catch (err) {
         console.error("[vibe-check] pipe error", err);
         controller.error(err);

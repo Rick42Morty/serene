@@ -1,43 +1,39 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Sparkles } from "lucide-react";
+import { Loader2, Sparkles } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 type Props = {
   mood: string;
   tags: string[];
   note: string;
-  onFinish?: (text: string) => void;
+  entryId?: string;
 };
 
-/**
- * Streams a one-shot vibe check from /api/vibe-check and renders it progressively.
- * Re-fetches whenever the `mood | tags | note` triple changes to a new value.
- */
-export function VibeCheckStream({ mood, tags, note, onFinish }: Props) {
+export function VibeCheckStream({ mood, tags, note, entryId }: Props) {
   const [text, setText] = useState("");
-  const [status, setStatus] = useState<"idle" | "streaming" | "done" | "error">(
-    "idle",
-  );
+  const [status, setStatus] = useState<
+    "idle" | "waiting" | "streaming" | "done" | "error"
+  >("waiting");
   const abortRef = useRef<AbortController | null>(null);
+  const tagsKey = tags.join("|");
 
   useEffect(() => {
-    // Reset and start a new stream for every distinct input.
     if (!mood || !note || note.trim().length < 1) return;
 
     abortRef.current?.abort();
     const ac = new AbortController();
     abortRef.current = ac;
     setText("");
-    setStatus("streaming");
+    setStatus("waiting");
 
     (async () => {
       try {
         const res = await fetch("/api/vibe-check", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ mood, tags, note }),
+          body: JSON.stringify({ mood, tags, note, entryId }),
           signal: ac.signal,
         });
 
@@ -49,15 +45,19 @@ export function VibeCheckStream({ mood, tags, note, onFinish }: Props) {
         const reader = res.body.getReader();
         const decoder = new TextDecoder();
         let acc = "";
+        let started = false;
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
           const chunk = decoder.decode(value, { stream: true });
           acc += chunk;
+          if (!started && acc.length > 0) {
+            started = true;
+            setStatus("streaming");
+          }
           setText(acc);
         }
         setStatus("done");
-        onFinish?.(acc.trim());
       } catch (err) {
         if ((err as Error).name === "AbortError") return;
         console.error(err);
@@ -66,9 +66,9 @@ export function VibeCheckStream({ mood, tags, note, onFinish }: Props) {
     })();
 
     return () => ac.abort();
-    // We intentionally ignore onFinish to avoid re-triggering on ref changes.
+    // tagsKey is the stable derivation of `tags`; tags itself is a new array each render.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mood, note, tags.join("|")]);
+  }, [mood, note, tagsKey, entryId]);
 
   return (
     <div className="rounded-2xl border border-primary/30 bg-primary/5 p-4 sm:p-5">
@@ -76,8 +76,12 @@ export function VibeCheckStream({ mood, tags, note, onFinish }: Props) {
         <Sparkles className="h-3.5 w-3.5" />
         Vibe check
       </div>
-      {status === "streaming" && text === "" ? (
+      {status === "waiting" ? (
         <div className="space-y-2">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
+            Reflecting on your entry…
+          </div>
           <Skeleton className="h-4 w-4/5" />
           <Skeleton className="h-4 w-3/5" />
         </div>
