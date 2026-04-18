@@ -71,8 +71,8 @@ export function VibeCheckStream({ mood, tags, note, entryId }: Props) {
   }, [mood, note, tagsKey, entryId]);
 
   return (
-    <div className="rounded-2xl border border-primary/30 bg-primary/5 p-4 sm:p-5">
-      <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-primary">
+    <div className="rounded-3xl border border-primary/30 bg-primary/5 p-5 sm:p-6">
+      <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.15em] text-primary">
         <Sparkles className="h-3.5 w-3.5" />
         Vibe check
       </div>

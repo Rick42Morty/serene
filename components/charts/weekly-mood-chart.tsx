@@ -1,11 +1,11 @@
 "use client";
 
+import { useRef, useState, useEffect, useCallback } from "react";
 import {
   Bar,
   BarChart,
   CartesianGrid,
   Cell,
-  ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
@@ -21,10 +21,35 @@ export function WeeklyMoodChart({ data }: { data: MoodCount[] }) {
     color: byValue[d.mood]?.chart ?? "#999",
   }));
 
+  const ref = useRef<HTMLDivElement>(null);
+  const [dims, setDims] = useState({ width: 0, height: 0 });
+
+  const measure = useCallback(() => {
+    const el = ref.current;
+    if (!el) return;
+    const { width, height } = el.getBoundingClientRect();
+    if (width > 0 && height > 0) {
+      setDims((prev) =>
+        prev.width === Math.round(width) && prev.height === Math.round(height)
+          ? prev
+          : { width: Math.round(width), height: Math.round(height) },
+      );
+    }
+  }, []);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [measure]);
+
   return (
-    <div className="h-64 w-full">
-      <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={rows} margin={{ top: 12, right: 8, left: -12, bottom: 4 }}>
+    <div ref={ref} className="h-64 w-full">
+      {dims.width > 0 && dims.height > 0 && (
+        <BarChart width={dims.width} height={dims.height} data={rows} margin={{ top: 12, right: 8, left: -12, bottom: 4 }}>
           <CartesianGrid stroke="rgba(0,0,0,0.06)" vertical={false} />
           <XAxis
             dataKey="label"
@@ -55,7 +80,7 @@ export function WeeklyMoodChart({ data }: { data: MoodCount[] }) {
             ))}
           </Bar>
         </BarChart>
-      </ResponsiveContainer>
+      )}
     </div>
   );
 }

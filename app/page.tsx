@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { redirect } from "next/navigation";
+import { buttonVariants } from "@/components/ui/button";
 import {
   Brain,
   Heart,
@@ -12,8 +13,15 @@ import {
   Check,
 } from "lucide-react";
 import { SereneLogo } from "@/components/serene-logo";
+import { createClient } from "@/lib/supabase/server";
 
-export default function Landing() {
+export default async function Landing() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (user) redirect("/dashboard");
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
       {/* Nav */}
@@ -309,7 +317,7 @@ export default function Landing() {
             <SereneLogo size={20} />
             Serene
           </div>
-          <p className="text-xs text-muted-foreground">© 2025 Serene. Crafted with quiet care.</p>
+          <p className="text-xs text-muted-foreground">© 2026 Serene. Crafted with quiet care.</p>
           <div className="flex gap-6 text-xs text-muted-foreground">
             <a href="#" className="hover:text-foreground">Privacy</a>
             <a href="#" className="hover:text-foreground">Terms</a>

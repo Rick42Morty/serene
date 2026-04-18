@@ -17,7 +17,7 @@ export default async function AppLayout({
   return (
     <div className="flex min-h-dvh flex-col bg-background">
       <AppNav email={user.email ?? null} />
-      <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6 sm:px-6 sm:py-8">
+      <main className="mx-auto w-full max-w-6xl flex-1 px-6 py-8 sm:py-10 animate-page-in">
         {children}
       </main>
     </div>

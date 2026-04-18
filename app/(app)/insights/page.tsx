@@ -38,17 +38,17 @@ export default async function InsightsPage() {
     .slice(0, 5);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       <header>
-        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+        <h1 className="font-display text-4xl md:text-5xl font-light leading-tight">
           Your week
         </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="mt-2 text-sm text-muted-foreground">
           A gentle look at the last seven days.
         </p>
       </header>
 
-      <section className="grid gap-3 sm:grid-cols-3">
+      <section className="grid gap-4 sm:grid-cols-3">
         <Stat label="Entries" value={total.toString()} />
         <Stat
           label="Most common"
@@ -60,9 +60,9 @@ export default async function InsightsPage() {
         />
       </section>
 
-      <section className="rounded-2xl border border-border/70 bg-card p-4 sm:p-6">
-        <h2 className="text-sm font-semibold">Mood distribution</h2>
-        <p className="mb-4 text-xs text-muted-foreground">Last 7 days</p>
+      <section className="rounded-3xl border border-border/50 bg-card p-6 sm:p-8">
+        <h2 className="font-display text-lg">Mood distribution</h2>
+        <p className="mb-5 text-xs text-muted-foreground">Last 7 days</p>
         {total === 0 ? (
           <div className="flex h-64 items-center justify-center text-sm text-muted-foreground">
             No entries yet — check back after a few days of journaling.
@@ -73,16 +73,16 @@ export default async function InsightsPage() {
       </section>
 
       {topTags.length > 0 && (
-        <section className="rounded-2xl border border-border/70 bg-card p-4 sm:p-6">
-          <h2 className="text-sm font-semibold">Top tags</h2>
-          <p className="mb-4 text-xs text-muted-foreground">
+        <section className="rounded-3xl border border-border/50 bg-card p-6 sm:p-8">
+          <h2 className="font-display text-lg">Top tags</h2>
+          <p className="mb-5 text-xs text-muted-foreground">
             What came up most this week
           </p>
           <ul className="flex flex-wrap gap-2">
             {topTags.map(([tag, count]) => (
               <li
                 key={tag}
-                className="flex items-center gap-1.5 rounded-full border border-border/60 bg-muted/40 px-3 py-1 text-xs"
+                className="flex items-center gap-1.5 rounded-full border border-border/50 bg-muted/40 px-4 py-1.5 text-sm"
               >
                 <span className="font-medium">{tag}</span>
                 <span className="text-muted-foreground">· {count}</span>
@@ -97,11 +97,13 @@ export default async function InsightsPage() {
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-border/70 bg-card p-4">
-      <div className="text-xs uppercase tracking-wider text-muted-foreground">
+    <div className="rounded-3xl border border-border/50 bg-card p-5 sm:p-6">
+      <div className="text-xs uppercase tracking-[0.15em] text-muted-foreground">
         {label}
       </div>
-      <div className="mt-1 text-xl font-semibold tracking-tight">{value}</div>
+      <div className="mt-1.5 font-display text-2xl font-light tracking-tight">
+        {value}
+      </div>
     </div>
   );
 }

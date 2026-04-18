@@ -13,8 +13,8 @@ export function EntryCard({ entry }: { entry: Entry }) {
     <Link
       href={`/journal/${entry.id}`}
       className={cn(
-        "group block rounded-xl border border-border/70 p-4 transition-all",
-        "hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-sm",
+        "group block rounded-3xl border border-border/50 p-5 transition-all duration-500",
+        "hover:-translate-y-1 hover:border-primary/40 hover:shadow-soft",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         meta.tint,
       )}
@@ -28,7 +28,7 @@ export function EntryCard({ entry }: { entry: Entry }) {
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-baseline justify-between gap-2">
-            <h3 className="text-sm font-semibold text-foreground">
+            <h3 className="font-display text-base font-medium text-foreground">
               {meta.label}
             </h3>
             <time className="text-xs text-muted-foreground">

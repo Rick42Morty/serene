@@ -19,7 +19,7 @@ const MOOD_VALUES = [
 const entrySchema = z.object({
   mood: z.enum(MOOD_VALUES),
   tags: z.array(z.string().min(1).max(64)).max(12),
-  note: z.string().max(4000),
+  note: z.string().min(50, "Note must be at least 50 characters.").max(4000),
 });
 
 export type EntryInput = z.infer<typeof entrySchema>;

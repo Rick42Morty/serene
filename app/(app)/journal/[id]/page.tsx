@@ -21,10 +21,10 @@ export default async function EntryPage({
   if (!entry) notFound();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <Link
         href="/dashboard"
-        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
       >
         <ChevronLeft className="h-4 w-4" />
         Back to journal

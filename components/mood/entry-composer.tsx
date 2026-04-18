@@ -26,8 +26,9 @@ export function EntryComposer() {
   const [pending, startTransition] = useTransition();
 
   const locked = saved !== null;
-  const canSave = mood !== null && !locked;
-  const willTriggerVibeCheck = note.trim().length >= VIBE_CHECK_MIN_NOTE;
+  const noteLen = note.trim().length;
+  const noteValid = noteLen >= VIBE_CHECK_MIN_NOTE;
+  const canSave = mood !== null && noteValid && !locked;
 
   function handleSave() {
     if (!mood || !canSave) return;
@@ -52,10 +53,10 @@ export function EntryComposer() {
   return (
     <div className={`space-y-8 ${locked ? "md:pb-8" : "pb-32 md:pb-8"}`}>
       <section className={locked ? "pointer-events-none opacity-70" : undefined}>
-        <h2 className="text-sm font-semibold text-foreground">
+        <h2 className="text-xs uppercase tracking-[0.15em] text-muted-foreground font-semibold">
           How are you feeling?
         </h2>
-        <p className="mb-3 text-xs text-muted-foreground">
+        <p className="mb-4 text-sm text-muted-foreground">
           Pick the word that fits best right now — it doesn&apos;t have to be
           perfect.
         </p>
@@ -63,10 +64,10 @@ export function EntryComposer() {
       </section>
 
       <section className={locked ? "pointer-events-none opacity-70" : undefined}>
-        <h2 className="text-sm font-semibold text-foreground">
-          What&apos;s going on? <span className="font-normal text-muted-foreground">(optional)</span>
+        <h2 className="text-xs uppercase tracking-[0.15em] text-muted-foreground font-semibold">
+          What&apos;s going on? <span className="font-normal">(optional)</span>
         </h2>
-        <p className="mb-3 text-xs text-muted-foreground">
+        <p className="mb-4 text-sm text-muted-foreground">
           Add any context that feels relevant.
         </p>
         <TagChips value={tags} onChange={setTags} />
@@ -74,17 +75,16 @@ export function EntryComposer() {
 
       <section>
         <div className="flex items-baseline justify-between">
-          <Label htmlFor="note" className="text-sm font-semibold">
-            A note to yourself{" "}
-            <span className="font-normal text-muted-foreground">(optional)</span>
+          <Label htmlFor="note" className="text-xs uppercase tracking-[0.15em] text-muted-foreground font-semibold">
+            A note to yourself
           </Label>
           {!locked && (
             <span
               className={`text-xs ${
-                willTriggerVibeCheck ? "text-primary" : "text-muted-foreground"
+                noteValid ? "text-primary" : "text-muted-foreground"
               }`}
             >
-              {note.trim().length} / {VIBE_CHECK_MIN_NOTE}+ chars
+              {noteLen} / {VIBE_CHECK_MIN_NOTE}
             </span>
           )}
         </div>
@@ -94,13 +94,13 @@ export function EntryComposer() {
           onChange={(e) => setNote(e.target.value)}
           rows={6}
           placeholder="What's on your mind? A few sentences about today, a worry, a small win — whatever feels true."
-          className="mt-2 min-h-[140px] text-base leading-relaxed"
+          className="mt-3 min-h-[140px] rounded-2xl text-base leading-relaxed"
           disabled={locked}
         />
         {!locked && (
           <p className="mt-2 text-xs text-muted-foreground">
-            Write at least {VIBE_CHECK_MIN_NOTE} characters to get an AI vibe
-            check on your entry. Shorter notes will just be saved.
+            At least {VIBE_CHECK_MIN_NOTE} characters — enough for an AI vibe
+            check on your entry.
           </p>
         )}
       </section>
@@ -118,12 +118,12 @@ export function EntryComposer() {
         <div className="flex flex-col gap-2 sm:flex-row">
           <Button
             variant="outline"
-            className="sm:flex-1"
+            className="sm:flex-1 rounded-full"
             onClick={() => router.push("/dashboard")}
           >
             Back to journal
           </Button>
-          <Button className="sm:flex-1" onClick={reset}>
+          <Button className="sm:flex-1 rounded-full" onClick={reset}>
             Write another
           </Button>
         </div>
@@ -134,30 +134,30 @@ export function EntryComposer() {
               onClick={handleSave}
               disabled={!canSave || pending}
               size="lg"
-              className="w-full sm:w-auto"
+              className="w-full sm:w-auto rounded-full"
             >
               {pending && <Loader2 className="h-4 w-4 animate-spin" />}
-              {pending ? "Saving…" : willTriggerVibeCheck ? "Save & reflect" : "Save entry"}
+              {pending ? "Saving…" : "Save & reflect"}
             </Button>
             {!canSave && (
               <p className="mt-2 text-xs text-muted-foreground">
-                Pick a mood to continue.
+                Pick a mood & write your note and write at least {VIBE_CHECK_MIN_NOTE} characters to continue.
               </p>
             )}
           </div>
-          <div className="safe-bottom fixed inset-x-0 bottom-0 border-t border-border/70 bg-background/95 px-4 py-3 backdrop-blur md:hidden">
+          <div className="safe-bottom fixed inset-x-0 bottom-0 border-t border-border/50 bg-background/95 px-4 py-3 backdrop-blur-md md:hidden">
             <Button
               onClick={handleSave}
               disabled={!canSave || pending}
-              className="w-full"
+              className="w-full rounded-full"
               size="lg"
             >
               {pending && <Loader2 className="h-4 w-4 animate-spin" />}
-              {pending ? "Saving…" : willTriggerVibeCheck ? "Save & reflect" : "Save entry"}
+              {pending ? "Saving…" : "Save & reflect"}
             </Button>
             {!canSave && (
               <p className="mt-1.5 text-center text-[11px] text-muted-foreground">
-                Pick a mood
+                Pick a mood & write your note
               </p>
             )}
           </div>

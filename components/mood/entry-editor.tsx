@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { Loader2, Pencil, Trash2 } from "lucide-react";
+import { Loader2, Pencil, Trash2, Sparkles } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -33,6 +33,9 @@ export function EntryEditor({ entry }: { entry: Entry }) {
   const [note, setNote] = useState(entry.note);
   const [pending, startTransition] = useTransition();
 
+  const NOTE_MIN = 50;
+  const noteLen = note.trim().length;
+  const noteValid = noteLen >= NOTE_MIN;
   const meta = MOOD_MAP[entry.mood];
   const createdDate = format(new Date(entry.created_at), "PPpp");
 
@@ -59,42 +62,43 @@ export function EntryEditor({ entry }: { entry: Entry }) {
     return (
       <div className="space-y-6 pb-24 md:pb-0">
         <div
-          className={`rounded-2xl border border-border/70 p-5 sm:p-6 ${meta.tint}`}
+          className={`rounded-3xl border border-border/50 p-6 sm:p-8 ${meta.tint}`}
         >
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-3">
               <div
-                className="flex h-11 w-11 items-center justify-center rounded-full bg-white/80 text-xl shadow-sm"
+                className="flex h-12 w-12 items-center justify-center rounded-full bg-white/80 text-2xl shadow-sm"
                 aria-hidden
               >
                 {meta.emoji}
               </div>
               <div>
-                <h1 className="text-xl font-semibold">{meta.label}</h1>
+                <h1 className="font-display text-2xl font-light">{meta.label}</h1>
                 <p className="text-xs text-muted-foreground">{createdDate}</p>
               </div>
             </div>
           </div>
           {entry.tags.length > 0 && (
-            <div className="mt-4 flex flex-wrap gap-1.5">
+            <div className="mt-5 flex flex-wrap gap-1.5">
               {entry.tags.map((t) => (
                 <span
                   key={t}
-                  className="rounded-full border border-border/60 bg-white/60 px-2.5 py-0.5 text-xs text-foreground/80"
+                  className="rounded-full border border-border/50 bg-white/60 px-3 py-0.5 text-xs text-foreground/80"
                 >
                   {t}
                 </span>
               ))}
             </div>
           )}
-          <p className="mt-5 whitespace-pre-wrap text-[15px] leading-relaxed text-foreground/90">
+          <p className="mt-6 whitespace-pre-wrap text-[15px] leading-relaxed text-foreground/90">
             {entry.note}
           </p>
         </div>
 
         {entry.ai_response && (
-          <div className="rounded-2xl border border-primary/30 bg-primary/5 p-4 sm:p-5">
-            <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-primary">
+          <div className="rounded-3xl border border-primary/30 bg-primary/5 p-5 sm:p-6">
+            <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.15em] text-primary">
+              <Sparkles className="h-3.5 w-3.5" />
               Vibe check
             </div>
             <p className="whitespace-pre-wrap text-[15px] leading-relaxed text-foreground/90">
@@ -103,10 +107,10 @@ export function EntryEditor({ entry }: { entry: Entry }) {
           </div>
         )}
 
-        <div className="safe-bottom fixed inset-x-0 bottom-0 flex gap-2 border-t border-border/70 bg-background/95 px-4 py-3 backdrop-blur md:static md:inset-auto md:border-0 md:bg-transparent md:p-0">
+        <div className="safe-bottom fixed inset-x-0 bottom-0 flex gap-2 border-t border-border/50 bg-background/95 px-4 py-3 backdrop-blur-md md:static md:inset-auto md:border-0 md:bg-transparent md:p-0">
           <Button
             variant="outline"
-            className="flex-1 md:flex-initial"
+            className="flex-1 md:flex-initial rounded-full"
             onClick={() => setEditing(true)}
           >
             <Pencil className="h-4 w-4" />
@@ -115,7 +119,7 @@ export function EntryEditor({ entry }: { entry: Entry }) {
           <AlertDialog>
             <AlertDialogTrigger
               render={
-                <Button variant="destructive" className="flex-1 md:flex-initial" />
+                <Button variant="destructive" className="flex-1 md:flex-initial rounded-full" />
               }
             >
               <Trash2 className="h-4 w-4" />
@@ -123,18 +127,22 @@ export function EntryEditor({ entry }: { entry: Entry }) {
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Delete this entry?</AlertDialogTitle>
+                <AlertDialogTitle className="font-display text-xl font-light">
+                  Delete this entry?
+                </AlertDialogTitle>
                 <AlertDialogDescription>
                   This can&apos;t be undone. Your reflection will be permanently
                   removed.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel disabled={pending}>Cancel</AlertDialogCancel>
+                <AlertDialogCancel disabled={pending} className="rounded-full">
+                  Cancel
+                </AlertDialogCancel>
                 <AlertDialogAction
                   onClick={handleDelete}
                   disabled={pending}
-                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  className="rounded-full bg-destructive text-destructive-foreground hover:bg-destructive/90"
                 >
                   {pending && <Loader2 className="h-4 w-4 animate-spin" />}
                   Delete
@@ -148,31 +156,40 @@ export function EntryEditor({ entry }: { entry: Entry }) {
   }
 
   return (
-    <div className="space-y-6 pb-24 md:pb-0">
+    <div className="space-y-8 pb-24 md:pb-0">
       <section>
-        <h2 className="mb-2 text-sm font-semibold">Mood</h2>
+        <h2 className="mb-3 text-xs uppercase tracking-[0.15em] text-muted-foreground font-semibold">
+          Mood
+        </h2>
         <MoodSelector value={mood} onChange={setMood} />
       </section>
       <section>
-        <h2 className="mb-2 text-sm font-semibold">Tags</h2>
+        <h2 className="mb-3 text-xs uppercase tracking-[0.15em] text-muted-foreground font-semibold">
+          Tags
+        </h2>
         <TagChips value={tags} onChange={setTags} />
       </section>
       <section>
-        <Label htmlFor="note" className="text-sm font-semibold">
-          Note
-        </Label>
+        <div className="flex items-baseline justify-between">
+          <Label htmlFor="note" className="text-xs uppercase tracking-[0.15em] text-muted-foreground font-semibold">
+            Note
+          </Label>
+          <span className={`text-xs ${noteValid ? "text-primary" : "text-muted-foreground"}`}>
+            {noteLen} / {NOTE_MIN}
+          </span>
+        </div>
         <Textarea
           id="note"
           value={note}
           onChange={(e) => setNote(e.target.value)}
           rows={6}
-          className="mt-2 min-h-[140px] text-base leading-relaxed"
+          className="mt-3 min-h-[140px] rounded-2xl text-base leading-relaxed"
         />
       </section>
-      <div className="safe-bottom fixed inset-x-0 bottom-0 flex gap-2 border-t border-border/70 bg-background/95 px-4 py-3 backdrop-blur md:static md:inset-auto md:border-0 md:bg-transparent md:p-0">
+      <div className="safe-bottom fixed inset-x-0 bottom-0 flex gap-2 border-t border-border/50 bg-background/95 px-4 py-3 backdrop-blur-md md:static md:inset-auto md:border-0 md:bg-transparent md:p-0">
         <Button
           variant="outline"
-          className="flex-1 md:flex-initial"
+          className="flex-1 md:flex-initial rounded-full"
           onClick={() => {
             setEditing(false);
             setMood(entry.mood);
@@ -184,9 +201,9 @@ export function EntryEditor({ entry }: { entry: Entry }) {
           Cancel
         </Button>
         <Button
-          className="flex-1 md:flex-initial"
+          className="flex-1 md:flex-initial rounded-full"
           onClick={save}
-          disabled={pending}
+          disabled={pending || !noteValid}
         >
           {pending && <Loader2 className="h-4 w-4 animate-spin" />}
           Save changes
