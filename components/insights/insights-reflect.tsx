@@ -77,7 +77,7 @@ export function InsightsReflect({
     return (
       <button
         onClick={handleClick}
-        className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/5 px-4 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary/10"
+        className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/5 px-4 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary/10 cursor-pointer"
       >
         <Sparkles className="h-3.5 w-3.5" />
         Reflect with AI
