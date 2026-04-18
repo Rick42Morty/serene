@@ -2,7 +2,7 @@
 
 A private, calm space for your thoughts — mood journaling with an empathetic AI vibe check.
 
-Log how you feel, pick a few context tags, write a reflective note, and receive a warm one-to-two sentence reflection streamed in real time. Every entry is scoped to its author via Postgres row-level security, so a compromised API key can't leak another user's journal.
+Log how you feel, pick a few context tags, write a reflective note, and receive a warm one-to-two sentence reflection streamed in real time. The **Insights** page shows your weekly mood distribution and top tags — hit **Reflect with AI** to get a gentle, streamed summary and advice based on your stats. Every entry is scoped to its author via Postgres row-level security, so a compromised API key can't leak another user's journal.
 
 ## Tech stack
 
@@ -25,9 +25,11 @@ Browser (React 19)
    │        │
    │        ├─▶ @supabase/ssr ─▶ Supabase (Postgres + GoTrue, RLS-enforced)
    │        │
-   │        └─▶ /api/vibe-check ─▶ OpenAI gpt-5.4-mini (SSE stream)
+   │        ├─▶ /api/vibe-check ─▶ OpenAI gpt-5.4-mini (SSE stream)
+   │        │
+   │        └─▶ /api/insights-reflect ─▶ OpenAI gpt-5.4-mini (SSE stream)
    │
-   └───── reads SSE from /api/vibe-check for live reflections
+   └───── reads SSE from /api/vibe-check & /api/insights-reflect for live reflections
 ```
 
 Single table — `public.entries` — stores mood, tags, note, and AI response per row. Four RLS policies (select / insert / update / delete) check `auth.uid() = user_id`, so direct REST queries with a stolen API key still return nothing.

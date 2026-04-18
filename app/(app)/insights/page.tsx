@@ -2,6 +2,7 @@ import { subDays, startOfDay } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
 import { MOODS } from "@/lib/constants/moods";
 import { WeeklyMoodChart, type MoodCount } from "@/components/charts/weekly-mood-chart";
+import { InsightsReflect } from "@/components/insights/insights-reflect";
 import type { Entry } from "@/lib/supabase/types";
 
 export default async function InsightsPage() {
@@ -37,6 +38,11 @@ export default async function InsightsPage() {
     .sort((a, b) => b[1] - a[1])
     .slice(0, 5);
 
+  const moodBreakdown = data
+    .filter((m) => m.count > 0)
+    .map((m) => ({ label: m.label, count: m.count }));
+  const topTagsForAI = topTags.map(([tag, count]) => ({ tag, count }));
+
   return (
     <div className="space-y-10">
       <header>
@@ -46,6 +52,17 @@ export default async function InsightsPage() {
         <p className="mt-2 text-sm text-muted-foreground">
           A gentle look at the last seven days.
         </p>
+        {total > 0 && (
+          <div className="mt-4">
+            <InsightsReflect
+              total={total}
+              topMood={topMood?.label ?? ""}
+              topTag={topTags[0]?.[0] ?? ""}
+              moodBreakdown={moodBreakdown}
+              topTags={topTagsForAI}
+            />
+          </div>
+        )}
       </header>
 
       <section className="grid gap-4 sm:grid-cols-3">
