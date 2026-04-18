@@ -6,15 +6,15 @@ Log how you feel, pick a few context tags, write a reflective note, and receive 
 
 ## Tech stack
 
-| Layer            | Choice                                                                 |
-| ---------------- | ---------------------------------------------------------------------- |
-| Framework        | **Next.js 16** (App Router, Turbopack, `output: "standalone"`)         |
-| UI               | **React 19.2**, **Tailwind CSS v4**, **shadcn/ui** (base-nova preset)  |
-| Backend & auth   | **Supabase** — Postgres + GoTrue email/password, RLS-enforced          |
-| Auth integration | **`@supabase/ssr`** (PKCE flow, wired through Next.js `proxy.ts`)      |
-| AI               | **Vercel AI SDK 6** + **OpenAI `gpt-5.4-mini`**, streamed over fetch   |
-| Charts           | **Recharts**                                                           |
-| Validation       | **Zod**                                                                |
+| Layer            | Choice                                                                |
+| ---------------- | --------------------------------------------------------------------- |
+| Framework        | **Next.js 16** (App Router, Turbopack, `output: "standalone"`)        |
+| UI               | **React 19.2**, **Tailwind CSS v4**, **shadcn/ui** (base-nova preset) |
+| Backend & auth   | **Supabase** — Postgres + GoTrue email/password, RLS-enforced         |
+| Auth integration | **`@supabase/ssr`** (PKCE flow, wired through Next.js `proxy.ts`)     |
+| AI               | **Vercel AI SDK 6** + **OpenAI `gpt-5.4-mini`**, streamed over fetch  |
+| Charts           | **Recharts**                                                          |
+| Validation       | **Zod**                                                               |
 
 ## Architecture
 
@@ -87,32 +87,15 @@ Then in **Auth → URL Configuration**, add `https://<your-domain>/auth/callback
 
 The repo ships a production `Dockerfile`, so any container host works. Railway example: push to GitHub, link the repo in Railway, set the env vars below — it picks up the `Dockerfile` automatically.
 
-| Variable                        | Where to find it                                                                        |
-| ------------------------------- | --------------------------------------------------------------------------------------- |
-| `NEXT_PUBLIC_SUPABASE_URL`      | Supabase → Project Settings → API → Project URL                                         |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase → Project Settings → API Keys → **Publishable key** (`sb_publishable_…`)       |
-| `NEXT_PUBLIC_SITE_URL`          | Your deployed URL (e.g. `https://…up.railway.app`)                                      |
-| `OPENAI_API_KEY`                | OpenAI dashboard                                                                        |
-| `OPENAI_MODEL`                  | `gpt-5.4-mini` (or any model your key has access to)                                    |
+| Variable                        | Where to find it                                                                  |
+| ------------------------------- | --------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`      | Supabase → Project Settings → API → Project URL                                   |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase → Project Settings → API Keys → **Publishable key** (`sb_publishable_…`) |
+| `NEXT_PUBLIC_SITE_URL`          | Your deployed URL (e.g. `https://…up.railway.app`)                                |
+| `OPENAI_API_KEY`                | OpenAI dashboard                                                                  |
+| `OPENAI_MODEL`                  | `gpt-5.4-mini` (or any model your key has access to)                              |
 
 `NEXT_PUBLIC_*` vars are inlined into the client bundle at build time — Railway passes service env vars into the Docker build automatically, so setting them on the service is enough. On other hosts (Fly, Render, etc.), pass them via `--build-arg` or your host's equivalent.
-
-## Environment variables
-
-See [`.env.example`](./.env.example). The committed `NEXT_PUBLIC_SUPABASE_ANON_KEY` is a fixed demo JWT that matches the JWT secret in `docker-compose.yaml` — safe to commit, local-only. Never commit a real `.env` with an OpenAI key.
-
-## Verification checklist
-
-- [ ] Sign up with a new email → redirected to `/dashboard`
-- [ ] Log an entry with ≥ 50 chars → AI reflection streams in
-- [ ] Reload the entry detail page → AI response persists
-- [ ] Edit mood → card recolors; delete → confirm dialog removes the entry
-- [ ] `/insights` shows a bar chart after ≥ 1 entry
-- [ ] Private window → `/dashboard` redirects to `/login`
-- [ ] Query `entries` as another user → RLS returns nothing
-- [ ] Empty/gibberish note to `/api/vibe-check` → friendly fallback, no OpenAI call
-- [ ] Trigger word in note → response ends with the crisis-resources disclaimer
-- [ ] iPhone SE (375 × 667) in DevTools: no horizontal scroll, comfortable tap targets, save bar clears the home indicator
 
 ## Scripts
 
