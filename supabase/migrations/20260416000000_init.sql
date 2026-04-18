@@ -2,30 +2,48 @@
 -- entries table stores a single mood + tags + note + AI response per row.
 -- Row-Level Security is enabled so users can only read/write their own rows.
 
--- This migration runs during Postgres initdb — before GoTrue has had a chance
--- to run its own migrations. The supabase/postgres image pre-creates auth.uid()
--- owned by `postgres`, so we re-own the auth.* helpers to supabase_auth_admin.
--- Without this transfer, GoTrue can't `create or replace` them on first boot.
-create schema if not exists auth;
+-- LOCAL-ONLY: bootstrap auth helpers for Docker-based `supabase start`.
+-- On hosted Supabase the auth schema already exists and is fully managed,
+-- so these statements are skipped via the DO block guard.
+do $$
+begin
+  -- Only run when the auth schema does not yet contain uid()
+  -- (i.e. during local initdb, before GoTrue has migrated).
+  if not exists (
+    select 1 from pg_proc p
+    join pg_namespace n on n.oid = p.pronamespace
+    where n.nspname = 'auth' and p.proname = 'uid'
+  ) then
+    create schema if not exists auth;
 
-create or replace function auth.uid()
-returns uuid
-language sql
-stable
-set search_path = ''
-as $$
-  select nullif(
-    coalesce(
-      current_setting('request.jwt.claim.sub', true),
-      (nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'sub')
-    ),
-    ''
-  )::uuid;
+    create or replace function auth.uid()
+    returns uuid
+    language sql stable set search_path = '' as $fn$
+      select nullif(
+        coalesce(
+          current_setting('request.jwt.claim.sub', true),
+          (nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'sub')
+        ),
+        ''
+      )::uuid;
+    $fn$;
+  end if;
+end
 $$;
 
-alter function auth.uid()   owner to supabase_auth_admin;
-alter function auth.role()  owner to supabase_auth_admin;
-alter function auth.email() owner to supabase_auth_admin;
+-- Transfer ownership so GoTrue can replace these on first boot (local only).
+-- On hosted Supabase the role & ownership are already correct; errors are
+-- harmless but we guard anyway.
+do $$
+begin
+  alter function auth.uid()   owner to supabase_auth_admin;
+  alter function auth.role()  owner to supabase_auth_admin;
+  alter function auth.email() owner to supabase_auth_admin;
+exception when others then
+  -- On hosted Supabase we lack permission — that's fine, skip.
+  null;
+end
+$$;
 
 create type public.mood_kind as enum (
   'happy',
