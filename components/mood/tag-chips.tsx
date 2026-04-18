@@ -25,7 +25,7 @@ export function TagChips({
             onClick={() => toggle(tag)}
             aria-pressed={active}
             className={cn(
-              "min-h-[36px] rounded-full border px-3.5 py-1.5 text-sm transition-colors",
+              "min-h-[36px] rounded-full border px-3.5 py-1.5 text-sm cursor-pointer transition-colors",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
               active
                 ? "border-primary bg-primary text-primary-foreground"

@@ -22,7 +22,7 @@ export function MoodSelector({
             onClick={() => onChange(m.value)}
             aria-pressed={active}
             className={cn(
-              "group flex min-h-[88px] flex-col items-center justify-center gap-1.5 rounded-2xl border border-border/50 p-3 text-sm font-medium transition-all duration-500",
+              "group flex min-h-[88px] flex-col items-center justify-center gap-1.5 rounded-2xl border border-border/50 p-3 text-sm font-medium cursor-pointer transition-all duration-500",
               "hover:border-primary/40 hover:shadow-soft hover:-translate-y-0.5",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
               m.tint,
