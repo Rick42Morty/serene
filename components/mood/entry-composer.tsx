@@ -56,7 +56,7 @@ export function EntryComposer() {
         <h2 className="text-xs uppercase tracking-[0.15em] text-muted-foreground font-semibold">
           How are you feeling?
         </h2>
-        <p className="mb-4 text-sm text-muted-foreground">
+        <p className="mb-4 mt-2 text-sm text-muted-foreground">
           Pick the word that fits best right now — it doesn&apos;t have to be
           perfect.
         </p>
@@ -67,7 +67,7 @@ export function EntryComposer() {
         <h2 className="text-xs uppercase tracking-[0.15em] text-muted-foreground font-semibold">
           What&apos;s going on? <span className="font-normal">(optional)</span>
         </h2>
-        <p className="mb-4 text-sm text-muted-foreground">
+        <p className="mb-4 mt-2 text-sm text-muted-foreground">
           Add any context that feels relevant.
         </p>
         <TagChips value={tags} onChange={setTags} />

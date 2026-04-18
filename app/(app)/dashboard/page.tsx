@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { PenLine, ArrowRight } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/server";
 import { EntryCard } from "@/components/mood/entry-card";
 import { groupEntries } from "@/lib/group-entries";
@@ -30,7 +31,7 @@ export default async function Dashboard() {
         </div>
         <Link
           href="/journal/new"
-          className={buttonVariants({ className: "hidden md:inline-flex rounded-full group" })}
+          className={cn(buttonVariants({ size: "lg" }), "hidden md:inline-flex rounded-full px-5 py-2.5 h-auto group")}
         >
           <PenLine className="h-4 w-4" />
           New entry
@@ -59,7 +60,7 @@ export default async function Dashboard() {
 
       {/* Mobile floating-action bar */}
       <div className="safe-bottom fixed inset-x-0 bottom-0 border-t border-border/50 bg-background/95 px-4 py-3 backdrop-blur-md md:hidden">
-        <Link href="/journal/new" className={buttonVariants({ className: "w-full rounded-full" })}>
+        <Link href="/journal/new" className={cn(buttonVariants({ size: "lg" }), "w-full rounded-full px-5 py-2.5 h-auto")}>
           <PenLine className="h-4 w-4" />
           New entry
         </Link>
@@ -81,7 +82,7 @@ function EmptyState() {
       </p>
       <Link
         href="/journal/new"
-        className={buttonVariants({ className: "mt-8 rounded-full" })}
+        className={cn(buttonVariants({ size: "lg" }), "mt-8 rounded-full px-5 py-2.5 h-auto")}
       >
         <PenLine className="h-4 w-4" />
         Write your first entry
